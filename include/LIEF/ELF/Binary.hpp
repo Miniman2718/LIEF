@@ -490,6 +490,9 @@ class LIEF_API Binary : public LIEF::Binary {
   //! Return the size of the mapped binary
   uint64_t virtual_size() const;
 
+  //! TEST DEBUG function to add new segment
+  uint64_t compute_file_offset() const;
+
   //! Check if the binary uses a loader (also named linker or interpreter)
   //! @see interpreter
   bool has_interpreter() const;

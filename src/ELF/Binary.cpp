@@ -2735,6 +2735,19 @@ uint64_t Binary::relocate_phdr_table_pie() {
   return phdr_offset;
 }
 
+uint64_t Binary::compute_file_offset() const {
+  uint64_t file_offset = 0;
+  for (const std::unique_ptr<Segment>& segment : segments_) {
+    if (segment != nullptr && segment->is_load()) {
+      // file_offset = std::max(file_offset, segment->file_offset() + segment->physical_size());
+      file_offset = std::max(file_offset, segment->file_offset());
+    }
+  }
+  file_offset = align(file_offset, static_cast<uint64_t>(get_pagesize(*this)));
+  LIEF_DEBUG("FILE OFFSET: 0x{:05x}", file_offset);
+  return file_offset;
+}
+
 /*
  * This function relocates the segments table AT THE END of the binary.
  * It only works if the binary is not PIE and does not contain a PHDR segment.
@@ -2757,7 +2770,10 @@ uint64_t Binary::relocate_phdr_table_v3() {
     type() == Header::CLASS::ELF32 ? sizeof(details::ELF32::Elf_Phdr) :
                                      sizeof(details::ELF64::Elf_Phdr);
 
-  const uint64_t last_offset = virtual_size();
+  // TODO: fix hardcoded last_offset with runtime computation using compute_file_offset() function
+  // const uint64_t last_offset = virtual_size();
+  uint64_t last_offset = compute_file_offset();
+  last_offset = 8192;
 
   LIEF_DEBUG("Moving segment table at the end of the binary (0x{:010x})",
              last_offset);
