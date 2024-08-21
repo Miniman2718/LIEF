@@ -2741,6 +2741,8 @@ uint64_t Binary::compute_file_offset() const {
     if (segment != nullptr && segment->is_load()) {
       // file_offset = std::max(file_offset, segment->file_offset() + segment->physical_size());
       file_offset = std::max(file_offset, segment->file_offset());
+      // Possible because segment are not overlapping
+      file_offset += segment->physical_size();
     }
   }
   file_offset = align(file_offset, static_cast<uint64_t>(get_pagesize(*this)));
@@ -2770,10 +2772,11 @@ uint64_t Binary::relocate_phdr_table_v3() {
     type() == Header::CLASS::ELF32 ? sizeof(details::ELF32::Elf_Phdr) :
                                      sizeof(details::ELF64::Elf_Phdr);
 
-  // TODO: fix hardcoded last_offset with runtime computation using compute_file_offset() function
+  // TOD: fix hardcoded last_offset with runtime computation using compute_file_offset() function
+  // TODO: check if compute_file_offset works with other binary
   // const uint64_t last_offset = virtual_size();
+  // last_offset = 8192;
   uint64_t last_offset = compute_file_offset();
-  last_offset = 8192;
 
   LIEF_DEBUG("Moving segment table at the end of the binary (0x{:010x})",
              last_offset);
