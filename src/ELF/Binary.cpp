@@ -2804,7 +2804,8 @@ uint64_t Binary::relocate_phdr_table_v3() {
   phdr_load_segment->file_offset(phdr_reloc_info_.new_offset);
   phdr_load_segment->physical_size(new_segtbl_sz);
   phdr_load_segment->virtual_size(new_segtbl_sz);
-  phdr_load_segment->virtual_address(imagebase() + phdr_reloc_info_.new_offset);
+  LIEF_DEBUG("Imagebase (0x{:010x})", imagebase());
+  phdr_load_segment->virtual_address(imagebase() + virtual_size());
   phdr_load_segment->physical_address(phdr_load_segment->virtual_address());
   phdr_load_segment->alignment(0x1000);
   phdr_load_segment->add(Segment::FLAGS::R);
